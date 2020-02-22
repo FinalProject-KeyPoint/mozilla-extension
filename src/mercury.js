@@ -31,7 +31,28 @@ const kompasExtractor = {
     }
 }
 
+const tribunExtractor = {
+    domain: "tribunnews.com",
+    title: {
+        selectors: ['#arttitle']
+    },
+    author: {
+        selectors: []
+    },
+    content: {
+        selectors: ['.txt-article'],
+        clean: [
+            '.txt-article > h4',
+            'strong:first-of-type'
+        ]
+    },
+    next_page_url: {
+        selectors: ['.paging a']
+    }
+}
+
 Mercury.addExtractor(cnnindonesiaExtractor);
 Mercury.addExtractor(kompasExtractor);
+Mercury.addExtractor(tribunExtractor);
 
 export default Mercury;
