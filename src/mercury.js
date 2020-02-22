@@ -51,8 +51,32 @@ const tribunExtractor = {
     }
 }
 
+const detikExtractor = {
+    domain: "detik.com",
+    title: {
+        selectors: []
+    },
+    author: {
+        selectors: ['.author','.detail__author']
+    },
+    content: {
+        selectors: [
+            '.detail__body-text',
+            '#detikdetailtext'
+        ],
+        clean: [
+            '.twitter-tweet',
+            '.detail__body-tag',
+            '.detail_tag',
+            '.embed',
+            '#aevp_title'
+        ]
+    },
+}
+
 Mercury.addExtractor(cnnindonesiaExtractor);
 Mercury.addExtractor(kompasExtractor);
 Mercury.addExtractor(tribunExtractor);
+Mercury.addExtractor(detikExtractor);
 
 export default Mercury;
