@@ -13,6 +13,25 @@ const cnnindonesiaExtractor = {
     }
 }
 
+const kompasExtractor = {
+    domain: 'kompas.com',
+    title: {
+        selectors: ['.read__title']
+    },
+    author: {
+        selectors: ['#penulis > a']
+    },
+    content: {
+        selectors: ['.read__content'],
+        clean: [
+            'p > strong',
+            '.ads-on-body',
+            '.twitter-tweet'
+        ]
+    }
+}
+
 Mercury.addExtractor(cnnindonesiaExtractor);
+Mercury.addExtractor(kompasExtractor);
 
 export default Mercury;

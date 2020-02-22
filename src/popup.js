@@ -13,6 +13,7 @@ summariseBtn.addEventListener("click",() => {
         
         pageContent = 
             parsedPage.content.replace(/<style[^>]*>.*<\/style>/gm, ' ')
+            .replace(/Page [0-9]/gm, ' ')
             .replace(/<[^>]+>/gm, ' ')
             .replace(/([\r\n]+ +)+/gm, ' ');
         
