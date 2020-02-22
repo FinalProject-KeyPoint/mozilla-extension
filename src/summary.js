@@ -1,7 +1,8 @@
 const keypointServer = 'http://13.250.46.91:3000';
 const contentDiv = document.getElementById("content");
+const titleDiv = document.getElementById("title");
 browser.runtime.onMessage.addListener(notify);
-let original;
+let article;
 let summaryArr = [];
 
 function notify(message) 
@@ -9,15 +10,16 @@ function notify(message)
     switch(message.type)
     {
         case 'SET_CONTENT':
-            original = message.content;
-            contentDiv.innerHTML = message.content;
+            article = message.article;
+            contentDiv.innerHTML = message.article.content;
+            titleDiv.innerText = message.article.title;
             fetch(`${keypointServer}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    "isi_artikel": message.content
+                    "isi_artikel": message.article.content
                 })
             })
             .then(res => res.text())
@@ -36,7 +38,7 @@ selectMode.addEventListener("input",(e) => {
     switch(e.target.value)
     {
         case 'o':
-            contentDiv.innerHTML = original;
+            contentDiv.innerHTML = article.content;
             break;
         case 's':
             contentDiv.innerHTML = `

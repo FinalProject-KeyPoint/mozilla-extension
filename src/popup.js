@@ -1,7 +1,7 @@
 import Mercury from "./mercury";
 
 const summariseBtn = document.getElementById('summarise-btn');
-let pageContent;
+let article;
 summariseBtn.addEventListener("click",() => {
     browser.tabs.query({active: true, currentWindow: true})
     .then((tabs) => {
@@ -11,12 +11,13 @@ summariseBtn.addEventListener("click",() => {
     .then((parsedPage) => {
         console.log(parsedPage);
         
-        pageContent = 
+        parsedPage.content = 
             parsedPage.content.replace(/<style[^>]*>.*<\/style>/gm, ' ')
             .replace(/Page [0-9]/gm, ' ')
             .replace(/<[^>]+>/gm, ' ')
             .replace(/([\r\n]+ +)+/gm, ' ');
         
+        article = parsedPage;
         return browser.tabs.create({
             url: '/summary.html'
         })
@@ -25,7 +26,7 @@ summariseBtn.addEventListener("click",() => {
         setTimeout(() => {
             browser.runtime.sendMessage({
                 type: "SET_CONTENT",
-                content: pageContent
+                article
             })
         }, 500);
     })
