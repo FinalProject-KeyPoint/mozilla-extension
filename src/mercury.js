@@ -112,11 +112,29 @@ const tempoExtractor = {
     },
 }
 
+const okezoneExtractor = {
+    domain: "okezone.com",
+    title: {
+        selectors: ['.title > h1']
+    },
+    author: {
+        selectors: ['div.namerep']
+    },
+    content: {
+        selectors: ['div[itemprop="articleBody"]'],
+        clean: [
+            '.detail-tag',
+            '.detads-bottom'
+        ]
+    }
+}
+
 Mercury.addExtractor(cnnindonesiaExtractor);
 Mercury.addExtractor(kompasExtractor);
 Mercury.addExtractor(tribunExtractor);
 Mercury.addExtractor(detikExtractor);
 Mercury.addExtractor(liputan6Extractor);
 Mercury.addExtractor(tempoExtractor);
+Mercury.addExtractor(okezoneExtractor);
 
 export default Mercury;
