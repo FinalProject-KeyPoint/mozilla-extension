@@ -129,6 +129,25 @@ const okezoneExtractor = {
     }
 }
 
+const cnbcindonesiaExtractor = {
+    domain: "cnbcindonesia.com",
+    title: {
+        selectors: ['.jdl h1']
+    },
+    author: {
+        selectors: ['.author'],
+        clean: ['.label']
+    },
+    content: {
+        selectors: ['.detail_text'],
+        clean: [
+            '.trending-tag',
+            '.sisip_embed_sosmed',
+            '.embed'
+        ]
+    }
+}
+
 Mercury.addExtractor(cnnindonesiaExtractor);
 Mercury.addExtractor(kompasExtractor);
 Mercury.addExtractor(tribunExtractor);
@@ -136,5 +155,6 @@ Mercury.addExtractor(detikExtractor);
 Mercury.addExtractor(liputan6Extractor);
 Mercury.addExtractor(tempoExtractor);
 Mercury.addExtractor(okezoneExtractor);
+Mercury.addExtractor(cnbcindonesiaExtractor);
 
 export default Mercury;
