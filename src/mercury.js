@@ -94,10 +94,29 @@ const liputan6Extractor = {
     },
 }
 
+const tempoExtractor = {
+    domain: "tempo.co",
+    title: {
+        selectors: ['h1[itemprop="headline"]']
+    },
+    author: {
+        selectors: ['h4[itemprop="author"]']
+    },
+    content: {
+        selectors: [
+            'div[itemprop="articleBody"]'
+        ],
+        clean: [
+            
+        ]
+    },
+}
+
 Mercury.addExtractor(cnnindonesiaExtractor);
 Mercury.addExtractor(kompasExtractor);
 Mercury.addExtractor(tribunExtractor);
 Mercury.addExtractor(detikExtractor);
 Mercury.addExtractor(liputan6Extractor);
+Mercury.addExtractor(tempoExtractor);
 
 export default Mercury;
