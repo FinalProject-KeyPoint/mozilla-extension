@@ -19,21 +19,25 @@ function Summary(props)
     const [summaryArr, setSummaryArr] = useState([]);
     const {article} = props;
     
-    fetch(`${keypointServer}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            "isi_artikel": article.content
+    if(loadSum)
+    {
+        fetch(`${keypointServer}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                "isi_artikel": article.content
+            })
         })
-    })
-    .then(res => res.text())
-    .then((arr) => {
-        setSummaryArr(JSON.parse(arr));
-        // console.log(summaryArr);
-        setLoadSum(false);
-    })
+        .then(res => res.text())
+        .then((arr) => {
+            setSummaryArr(JSON.parse(arr));
+            // console.log(summaryArr);
+            setLoadSum(false);
+        })
+
+    }
 
     return (
         <div>
