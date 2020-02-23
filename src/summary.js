@@ -8,9 +8,17 @@ function Summary(props)
 {
     const [mode, setMode] = useState('o');
     const [loadSum, setLoadSum] = useState(true);
+    const loading = [
+        'Loading',
+        'Summarizing',
+        'Reading',
+        'Inspecting',
+        'Thinking'
+    ];
+    const [loadingMsg] = useState(loading[Math.floor(Math.random()*loading.length)]);
     const [summaryArr, setSummaryArr] = useState([]);
     const {article} = props;
-
+    
     fetch(`${keypointServer}`, {
         method: 'POST',
         headers: {
@@ -23,7 +31,7 @@ function Summary(props)
     .then(res => res.text())
     .then((arr) => {
         setSummaryArr(JSON.parse(arr));
-        console.log(summaryArr);
+        // console.log(summaryArr);
         setLoadSum(false);
     })
 
@@ -35,13 +43,14 @@ function Summary(props)
             </select>
             
             <h1 id="title">{article.title}</h1>
+            <h4 id="author">{article.author}</h4>
             <div id="content">
                 {
                     mode === 'o'
                     ? article.content
                     : mode === 's'
                       ? loadSum
-                        ? 'Summarizing...'
+                        ? loadingMsg + '...'
                         : <ul>
                             {
                                 summaryArr.map((p) => {
@@ -59,7 +68,11 @@ function Summary(props)
 function injectApp(article)
 {
     const summaryDiv = document.getElementById('Summary');
-    ReactDOM.render(<Summary article={article} />, summaryDiv);
+    if(!summaryDiv.innerHTML)
+    {
+        ReactDOM.render(<Summary article={article} />, summaryDiv);
+
+    }
 }
 
 function notify(message) 
