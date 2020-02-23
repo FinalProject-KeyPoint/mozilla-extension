@@ -9,13 +9,14 @@ summariseBtn.addEventListener("click",() => {
         return Mercury.parse(pageUrl,{contentType: "html"});
     })
     .then((parsedPage) => {
-        console.log(parsedPage);
+        console.log("mercury:", parsedPage);
         
         parsedPage.content = 
             parsedPage.content.replace(/<style[^>]*>.*<\/style>/gm, ' ')
             .replace(/Page [0-9]/gm, ' ')
             .replace(/<[^>]+>/gm, ' ')
-            .replace(/([\r\n]+ +)+/gm, ' ');
+            .replace(/([\r\n]+ +)+/gm, ' ')
+            .replace(/&nbsp;/gm,' ');
         
         article = parsedPage;
         return browser.tabs.create({

@@ -74,9 +74,30 @@ const detikExtractor = {
     },
 }
 
+const liputan6Extractor = {
+    domain: "liputan6.com",
+    title: {
+        selectors: ['.read-page--header--title']
+    },
+    author: {
+        selectors: ['.read-page--header--author__name']
+    },
+    content: {
+        selectors: [
+            '.article-content-body'
+        ],
+        clean: [
+            '.baca-juga',
+            '.read-page--video-gallery--item',
+            '.article-content-body__item-media'
+        ]
+    },
+}
+
 Mercury.addExtractor(cnnindonesiaExtractor);
 Mercury.addExtractor(kompasExtractor);
 Mercury.addExtractor(tribunExtractor);
 Mercury.addExtractor(detikExtractor);
+Mercury.addExtractor(liputan6Extractor);
 
 export default Mercury;
