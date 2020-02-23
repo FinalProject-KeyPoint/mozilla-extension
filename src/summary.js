@@ -1,54 +1,74 @@
+import React, {useState} from 'react'
+import ReactDOM from 'react-dom'
+
 const keypointServer = 'http://13.250.46.91:3000';
-const contentDiv = document.getElementById("content");
-const titleDiv = document.getElementById("title");
 browser.runtime.onMessage.addListener(notify);
-let article;
-let summaryArr = [];
+
+function Summary(props)
+{
+    const [mode, setMode] = useState('o');
+    const [loadSum, setLoadSum] = useState(true);
+    const [summaryArr, setSummaryArr] = useState([]);
+    const {article} = props;
+
+    fetch(`${keypointServer}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            "isi_artikel": article.content
+        })
+    })
+    .then(res => res.text())
+    .then((arr) => {
+        setSummaryArr(JSON.parse(arr));
+        console.log(summaryArr);
+        setLoadSum(false);
+    })
+
+    return (
+        <div>
+            <select id="select-mode" value={mode} onChange={e=>setMode(e.target.value)}>
+                <option value="o">Original</option>
+                <option value="s">Summarised</option>
+            </select>
+            
+            <h1 id="title">{article.title}</h1>
+            <div id="content">
+                {
+                    mode === 'o'
+                    ? article.content
+                    : mode === 's'
+                      ? loadSum
+                        ? 'Summarizing...'
+                        : <ul>
+                            {
+                                summaryArr.map((p) => {
+                                    return <li>{p}</li>;
+                                })
+                            }
+                        </ul>
+                      : ''
+                }
+            </div>
+        </div>
+    );
+}
+
+function injectApp(article)
+{
+    const summaryDiv = document.getElementById('Summary');
+    ReactDOM.render(<Summary article={article} />, summaryDiv);
+}
 
 function notify(message) 
 {
     switch(message.type)
     {
         case 'SET_CONTENT':
-            article = message.article;
-            contentDiv.innerHTML = message.article.content;
-            titleDiv.innerText = message.article.title;
-            fetch(`${keypointServer}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    "isi_artikel": message.article.content
-                })
-            })
-            .then(res => res.text())
-            .then((arr) => {
-                summaryArr = JSON.parse(arr);
-                console.log(summaryArr);
-                
-            })
+            injectApp(message.article);
             break;
     }
     
 }
-    
-const selectMode = document.getElementById('select-mode');
-selectMode.addEventListener("input",(e) => {
-    switch(e.target.value)
-    {
-        case 'o':
-            contentDiv.innerHTML = article.content;
-            break;
-        case 's':
-            contentDiv.innerHTML = `
-                <ul>
-                    ${summaryArr.reduce((acc,p) => {
-                        return acc + `<li>${p}</li>`;
-                    },'')}
-                </ul>
-            `;
-            break;
-
-    }
-})
