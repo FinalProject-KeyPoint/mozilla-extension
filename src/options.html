@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>KeyPoint options</title>
+</head>
+<body>
+    <h1>KeyPoint options</h1>
+    <form id="options-form">
+        <h4>Summary location</h4>
+        <input type="radio" name="openLocation" id="newtab" value="newtab"> <label for="newtab">Open in new tab</label> <br>
+        <input type="radio" name="openLocation" id="sametab" value="sametab"> <label for="sametab">Open on the same tab</label> <br>
+
+        <h4>Default summary length</h4>
+        <select name="summaryLength" id="summaryLength">
+            <option value="s">Short</option>
+            <option value="m">Medium</option>
+            <option value="l">Long</option>
+        </select><br>
+        <button type="submit">Save</button>
+        <div id="message"></div>
+    </form>
+    <script src="build/options.js"></script>
+</body>
+</html>
