@@ -2,12 +2,20 @@ import React, {useState} from 'react'
 import ReactDOM from 'react-dom'
 
 const keypointServer = 'http://13.250.46.91:3000';
-browser.runtime.onMessage.addListener(notify);
+browser.runtime.onMessage.addListener((message) => {
+    switch(message.type)
+    {
+        case 'SET_CONTENT':
+            injectApp(message.article);
+            break;
+    }
+});
 
 function Summary(props)
 {
     const [mode, setMode] = useState('o');
     const [loadSum, setLoadSum] = useState(true);
+    const [summaryLength, setSummaryLength] = useState('m');
     const loading = [
         'Loading',
         'Summarizing',
@@ -36,7 +44,7 @@ function Summary(props)
             // console.log(summaryArr);
             setLoadSum(false);
         })
-
+            
     }
 
     return (
@@ -55,13 +63,21 @@ function Summary(props)
                     : mode === 's'
                       ? loadSum
                         ? loadingMsg + '...'
-                        : <ul>
-                            {
-                                summaryArr.map((p) => {
-                                    return <li>{p}</li>;
-                                })
-                            }
-                        </ul>
+                        : 
+                        <p>
+                            <select id="summary-length" value={summaryLength} onChange={e=>setSummaryLength(e.target.value)}>
+                                <option value="s">Short</option>
+                                <option value="m">Medium</option>
+                                <option value="l">Long</option>
+                            </select>
+                            <ul>
+                                {
+                                    summaryArr.map((p) => {
+                                        return <li>{p}</li>;
+                                    })
+                                }
+                            </ul>
+                        </p>
                       : ''
                 }
             </div>
@@ -79,13 +95,4 @@ function injectApp(article)
     }
 }
 
-function notify(message) 
-{
-    switch(message.type)
-    {
-        case 'SET_CONTENT':
-            injectApp(message.article);
-            break;
-    }
-    
-}
+undefined;
