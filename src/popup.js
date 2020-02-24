@@ -107,4 +107,17 @@ function openSummaryInSameTab()
     })
 }
 
-summariseBtn.addEventListener("click",openSummaryInSameTab);
+summariseBtn.addEventListener("click", () => {
+    browser.storage.sync.get()
+    .then(({openLocation}) => {
+        switch(openLocation)
+        {
+            case 'newtab':
+                openSummaryInNewTab();
+                break;
+            case 'sametab':
+                openSummaryInSameTab();
+                break;
+        }
+    })
+});

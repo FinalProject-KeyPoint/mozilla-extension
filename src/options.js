@@ -15,9 +15,9 @@ function saveOptions(e)
 function restoreOptions()
 {  
     browser.storage.sync.get()
-    .then((result) => {
-        document.forms['options-form'][result.openLocation || 'newtab'].checked = true;
-        document.forms['options-form'].summaryLength.value = result.summaryLength || 'm';
+    .then((options) => {
+        document.forms['options-form'][options.openLocation || 'newtab'].checked = true;
+        document.forms['options-form'].summaryLength.value = options.summaryLength || 'm';
     });
 }
   
