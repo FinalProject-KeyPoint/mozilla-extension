@@ -68,23 +68,26 @@ function openSummaryInSameTab()
                 summaryDiv.style.top = '0px',
                 summaryDiv.style.left = '0px',
                 summaryDiv.style.zIndex = '1000'
+
+                var articleTitle = document.createElement("h1");
+                articleTitle.innerText = '${article.title}';
+
+                var articleAuthor = document.createElement("h4");
+                articleAuthor.innerText = '${article.author}';
+
+                var articleContent = document.createElement("p");
+                articleContent.innerText = '${article.content}';
+
+                summaryDiv.appendChild(articleTitle);
+                summaryDiv.appendChild(articleAuthor);
+                summaryDiv.appendChild(articleContent);
+
                 document.body.appendChild(summaryDiv);
                 undefined;
             `
-        })
-        // /* Injecting not working!!! */
-        .then(() => {
-            return browser.tabs.executeScript(currentTab.id,{file: 'build/injectSummary.js'})
-            
-        })
-        .then(() => {
-            browser.runtime.sendMessage({
-                type: "SET_CONTENT",
-                article
-            })
         })
 
     })
 }
 
-summariseBtn.addEventListener("click",openSummaryInNewTab);
+summariseBtn.addEventListener("click",openSummaryInSameTab);
