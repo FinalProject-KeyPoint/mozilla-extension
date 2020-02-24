@@ -60,29 +60,46 @@ function openSummaryInSameTab()
             code: `
                 var summaryDiv = document.createElement("div");
                 summaryDiv.id = 'Summary';
-                summaryDiv.style.opacity ='0.8',
-                summaryDiv.style.backgroundColor = '#ccc',
-                summaryDiv.style.position = 'fixed',
-                summaryDiv.style.width = '100%',
-                summaryDiv.style.height = '100%',
-                summaryDiv.style.top = '0px',
-                summaryDiv.style.left = '0px',
-                summaryDiv.style.zIndex = '1000'
+                summaryDiv.style.backgroundColor = '#fff';
+                summaryDiv.style.position = 'fixed';
+                summaryDiv.style.overflowY = 'scroll';
+                summaryDiv.style.width = '100%';
+                summaryDiv.style.height = '100%';
+                summaryDiv.style.top = '0px';
+                summaryDiv.style.left = '0px';
+                summaryDiv.style.zIndex = '1000';
+                summaryDiv.style.padding = '100px';
+
+                var backBtn = document.createElement("button");
+                backBtn.innerText = \`Back\`;
+                backBtn.style.all = 'revert';
+                backBtn.onclick = () => summaryDiv.remove();
 
                 var articleTitle = document.createElement("h1");
-                articleTitle.innerText = '${article.title}';
+                articleTitle.innerText = \`${article.title}\`;
+                articleTitle.style.all = 'revert';
 
                 var articleAuthor = document.createElement("h4");
-                articleAuthor.innerText = '${article.author}';
+                articleAuthor.innerText = \`${article.author}\`;
+                articleAuthor.style.all = 'revert';
 
                 var articleContent = document.createElement("p");
-                articleContent.innerText = '${article.content}';
+                articleContent.innerText = \`${article.content}\`;
+                articleContent.style.all = 'revert';
 
+                summaryDiv.appendChild(backBtn);
                 summaryDiv.appendChild(articleTitle);
                 summaryDiv.appendChild(articleAuthor);
                 summaryDiv.appendChild(articleContent);
 
                 document.body.appendChild(summaryDiv);
+
+                document.onkeydown = (e) => {
+                    if(e.key === "Escape")
+                    {
+                        summaryDiv.remove();
+                    }
+                }
                 undefined;
             `
         })
