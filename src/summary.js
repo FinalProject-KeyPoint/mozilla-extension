@@ -29,7 +29,7 @@ function Summary(props)
     
     if(loadSum)
     {
-        fetch(`${keypointServer}`, {
+        fetch(keypointServer, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

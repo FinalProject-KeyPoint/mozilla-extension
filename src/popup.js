@@ -2,6 +2,8 @@ import Mercury from "./mercury";
 
 const summariseBtn = document.getElementById('summarise-btn');
 let article;
+let summaryArr = [];
+const keypointServer = 'http://13.250.46.91:3000';
 
 function openSummaryInNewTab()
 {
@@ -54,8 +56,23 @@ function openSummaryInSameTab()
             .replace(/<[^>]+>/gm, ' ')
             .replace(/([\r\n]+ +)+/gm, ' ')
             .replace(/&nbsp;/gm,' ');
-        
+
         article = parsedPage;
+        
+        fetch(keypointServer, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                "isi_artikel": article.content
+            })
+        })
+        .then(res => res.text())
+        .then((arr) => {
+            summaryArr = JSON.parse(arr);
+        })
+        
         browser.tabs.executeScript(currentTab.id,{
             code: `
                 var summaryDiv = document.createElement("div");
@@ -71,9 +88,16 @@ function openSummaryInSameTab()
                 summaryDiv.style.padding = '100px';
 
                 var backBtn = document.createElement("button");
-                backBtn.innerText = \`Back\`;
+                backBtn.innerText = 'Back';
                 backBtn.style.all = 'revert';
                 backBtn.onclick = () => summaryDiv.remove();
+
+                var modeSelector = document.createElement("select");
+                modeSelector.id = "select-mode";
+                modeSelector.innerHTML = \`
+                    <option value="o">Original</option>
+                    <option value="s">Summarised</option>
+                \`;
 
                 var articleTitle = document.createElement("h1");
                 articleTitle.innerText = \`${article.title}\`;
@@ -85,9 +109,28 @@ function openSummaryInSameTab()
 
                 var articleContent = document.createElement("p");
                 articleContent.innerText = \`${article.content}\`;
-                articleContent.style.all = 'revert';
+                articleContent.style.all = 'revert';                
+                modeSelector.onchange = (e) => {
+                    if(e.target.value === 'o')
+                    {
+                        articleContent.innerText = \`${article.content}\`;                        
+                    }
+                    else
+                    {
+                        articleContent.innerHTML = \`
+                            <ul>
+                                ${
+                                    summaryArr.reduce((acc,p) => {
+                                        return acc + `<li>${p}</li>`
+                                    },'')
+                                }
+                            </ul>
+                        \`;
+                    }
+                }
 
                 summaryDiv.appendChild(backBtn);
+                summaryDiv.appendChild(modeSelector);
                 summaryDiv.appendChild(articleTitle);
                 summaryDiv.appendChild(articleAuthor);
                 summaryDiv.appendChild(articleContent);
