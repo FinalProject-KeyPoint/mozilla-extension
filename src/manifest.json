@@ -17,7 +17,7 @@
   ],
 
   "browser_action": {
-    "default_title": "NLP",
+    "default_title": "KeyPoint",
     "default_popup": "popup.html"
   },
   
@@ -35,6 +35,12 @@
     "gecko": {
       "id": "addon@keypoint.com"
     }
+  },
+
+  "icons": {
+    "19": "../ico/icon19.png",
+    "38": "../ico/icon38.png",
+    "96": "../ico/favicon-96x96.png"
   }
 
   
