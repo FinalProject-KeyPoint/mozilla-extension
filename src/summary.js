@@ -1,8 +1,16 @@
-import React, {useState} from 'react'
-import ReactDOM from 'react-dom'
+/* eslint-disable no-nested-ternary */
+/* eslint-disable react/jsx-filename-extension */
+import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
+import Axios from 'axios';
+// import './styles/tufte-css/latex.css';
+// import './styles/tufte-css/tufte.css';
+
 
 // const keypointServer = 'http://13.250.46.91:3000';
 const keypointServer = 'https://allh8project.japhendywijaya.xyz/articles/redactedArticle';
+const baseURL = `https://allh8project.japhendywijaya.xyz`
+const bodyNode = document.body;
 
 browser.runtime.onMessage.addListener(({type, article, summaryLength, pArr}) => {
     switch(type)
@@ -19,7 +27,8 @@ function Summary(props)
     const [loadSum, setLoadSum] = useState(true);
     const [summaryLength, setSummaryLength] = useState(props.summaryLength);
     const [redactedArr, setRedactedArr] = useState([]);
-
+    const [donePosting, setDonePosting] = useState(false);
+    const [toggleFontStyle, setToggleFontStyle] = useState('et-book');
     const loading = [
         'Loading',
         'Summarizing',
@@ -30,6 +39,28 @@ function Summary(props)
     const [loadingMsg] = useState(loading[Math.floor(Math.random()*loading.length)]);
     const [summaryArr, setSummaryArr] = useState([]);
     const {article, pArr} = props;
+
+    useEffect(() => {
+      const { title, url } = article;
+  
+      if (!donePosting) {
+        browser.storage.local
+          .get('token')
+          .then(({ token }) =>
+            Axios.post(
+              '/articles',
+              { title, url, keyPoint: summaryArr },
+              { headers: { token }, baseURL }
+            )
+          )
+          .then(({ data }) => setDonePosting(true))
+          .catch(err => console.log(err));
+      }
+    }, [summaryArr]);
+
+    useEffect(() => {
+      bodyNode.style.fontFamily = toggleFontStyle;
+    }, [toggleFontStyle]);
 
     function sentencesToDisplay(summaryLength,arrLength)
     {
@@ -60,13 +91,14 @@ function Summary(props)
             const {keyPoint, redactedArticle} = JSON.parse(res);
             setSummaryArr(keyPoint);
             setRedactedArr(redactedArticle);
-            // console.log(summaryArr);
+            console.log(summaryArr);
             setLoadSum(false);
         })
             
     }
 
     return (
+      <article>
         <div>
             <select id="select-mode" value={mode} onChange={e=>setMode(e.target.value)}>
                 <option value="o">Original</option>
@@ -74,16 +106,21 @@ function Summary(props)
                 <option value="s">Summarised</option>
             </select>
             
-            <h1 id="title">{article.title}</h1>
-            <h4 id="author">{article.author}</h4>
+            <h1 className="tufte-css" id="title">{article.title}</h1>
+            <p className="subtitle" id="author">{article.author}</p>
             <div id="content">
                 {
                     mode === 'o'
-                    ? article.content
+                    ? (
+                      <section>
+                        <p>{article.content}</p>
+                      </section>
+                    )
                       : loadSum
                         ? loadingMsg + '...'
                           : mode === 's'
-                            ? 
+                            ? (
+                            <section>
                             <p>
                                 <select id="summary-length" value={summaryLength} onChange={e=>setSummaryLength(e.target.value)}>
                                     <option value="s">Short</option>
@@ -101,19 +138,21 @@ function Summary(props)
                                     }
                                 </ul>
                             </p>
+                            </section>)
                           : mode === 'r'
-                          ? 
+                          ? (<section>
                             <p>
                                 {
                                     redactedArr.map((p) => {
                                         return p + ' ';
                                     })
                                 }
-                            </p>
+                            </p> </section>)
                           : ''
                 }
             </div>
         </div>
+      </article>
     );
 }
 
