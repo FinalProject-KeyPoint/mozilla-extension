@@ -6,7 +6,7 @@ browser.runtime.onMessage.addListener((message) => {
     switch(message.type)
     {
         case 'SET_CONTENT':
-            injectApp(message.article);
+            injectApp(message.article,message.summaryLength);
             break;
     }
 });
@@ -15,7 +15,8 @@ function Summary(props)
 {
     const [mode, setMode] = useState('o');
     const [loadSum, setLoadSum] = useState(true);
-    const [summaryLength, setSummaryLength] = useState('m');
+    const [summaryLength, setSummaryLength] = useState(props.summaryLength);
+
     const loading = [
         'Loading',
         'Summarizing',
@@ -26,6 +27,21 @@ function Summary(props)
     const [loadingMsg] = useState(loading[Math.floor(Math.random()*loading.length)]);
     const [summaryArr, setSummaryArr] = useState([]);
     const {article} = props;
+
+    function sentencesToDisplay(summaryLength,arrLength)
+    {
+        switch(summaryLength)
+        {
+            case 's':
+                return Math.floor(arrLength*25/60);
+            case 'm':
+                return Math.floor(arrLength*40/60);
+            case 'l':
+            default:
+                return arrLength;
+
+        }
+    }
     
     if(loadSum)
     {
@@ -72,8 +88,11 @@ function Summary(props)
                             </select>
                             <ul>
                                 {
-                                    summaryArr.map((p) => {
-                                        return <li>{p}</li>;
+                                    summaryArr.map((p,i) => {
+                                        if(i<=sentencesToDisplay(summaryLength,summaryArr.length))
+                                        {
+                                            return <li>{p}</li>;
+                                        }
                                     })
                                 }
                             </ul>
@@ -85,12 +104,12 @@ function Summary(props)
     );
 }
 
-function injectApp(article)
+function injectApp(article,summaryLength)
 {
     const summaryDiv = document.getElementById('Summary');
     if(!summaryDiv.innerHTML)
     {
-        ReactDOM.render(<Summary article={article} />, summaryDiv);
+        ReactDOM.render(<Summary article={article} summaryLength={summaryLength} />, summaryDiv);
 
     }
 }

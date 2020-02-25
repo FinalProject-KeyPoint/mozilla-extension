@@ -7,7 +7,12 @@ const keypointServer = 'http://13.250.46.91:3000';
 
 function openSummaryInNewTab()
 {
-    browser.tabs.query({active: true, currentWindow: true})
+    let userSetSumLength
+    browser.storage.sync.get()
+    .then(({summaryLength}) => {
+        userSetSumLength = summaryLength || 'm';
+        return browser.tabs.query({active: true, currentWindow: true})
+    })
     .then((tabs) => {
         let pageUrl = tabs[0].url;
         return Mercury.parse(pageUrl,{contentType: "html"});
@@ -31,7 +36,8 @@ function openSummaryInNewTab()
         setTimeout(() => {
             browser.runtime.sendMessage({
                 type: "SET_CONTENT",
-                article
+                article,
+                summaryLength: userSetSumLength
             })
         }, 500);
     })
@@ -73,8 +79,29 @@ function openSummaryInSameTab()
     .then(res => res.text())
     .then((arr) => {
         summaryArr = JSON.parse(arr);
+        return browser.storage.sync.get()
+    })
+    .then(({summaryLength}) => {
         return browser.tabs.executeScript(currentTab.id,{
             code: `
+                var summaryLength = '${summaryLength}';
+                var summaryArr = JSON.parse('${JSON.stringify(summaryArr)}');
+
+                function sentencesToDisplay(summaryLength,arrLength)
+                {
+                    switch(summaryLength)
+                    {
+                        case 's':
+                            return Math.floor(arrLength*25/60);
+                        case 'm':
+                            return Math.floor(arrLength*40/60);
+                        case 'l':
+                        default:
+                            return arrLength;
+
+                    }
+                }
+
                 var summaryDiv = document.createElement("div");
                 summaryDiv.id = 'Summary';
                 summaryDiv.style.backgroundColor = '#fff';
@@ -106,6 +133,34 @@ function openSummaryInSameTab()
                 var articleAuthor = document.createElement("h4");
                 articleAuthor.innerText = \`${article.author}\`;
                 articleAuthor.style.all = 'revert';
+                
+                var keyPointsList = document.createElement('ul');
+                keyPointsList.id = 'key-points-ul';
+                keyPointsList.style.all = 'revert';
+                function populateKeyPoints()
+                {
+                    keyPointsList.innerHTML =
+                        summaryArr.reduce((acc,p,i) => {
+                            if(i<=sentencesToDisplay(summaryLength,summaryArr.length))
+                            {
+                                return acc + '<li>' + p + '</li>'
+                            }
+                            else
+                            {
+                                return acc;
+                            }
+                        },'')
+
+                }
+
+                var lengthSelector = document.createElement("select");
+                lengthSelector.id = "select-length";
+                lengthSelector.innerHTML = \`
+                    <option value="s">Short</option>
+                    <option value="m">Medium</option>
+                    <option value="l">Long</option>
+                \`;
+                lengthSelector.value = summaryLength;
 
                 var articleContent = document.createElement("p");
                 articleContent.innerText = \`${article.content}\`;
@@ -113,20 +168,20 @@ function openSummaryInSameTab()
                 modeSelector.onchange = (e) => {
                     if(e.target.value === 'o')
                     {
-                        articleContent.innerText = \`${article.content}\`;                        
+                        articleContent.innerText = \`${article.content}\`;              
                     }
                     else
                     {
-                        articleContent.innerHTML = \`
-                            <ul id='key-points-ul'>
-                                ${
-                                    summaryArr.reduce((acc,p) => {
-                                        return acc + `<li>${p}</li>`
-                                    },'')
-                                }
-                            </ul>
-                        \`;
+                        articleContent.innerText = '';
+                        articleContent.appendChild(lengthSelector);
+                        populateKeyPoints();
+                        articleContent.appendChild(keyPointsList);
                     }
+                }
+
+                lengthSelector.onchange = (e) => {
+                    summaryLength = e.target.value;
+                    populateKeyPoints();
                 }
 
                 summaryDiv.appendChild(backBtn);
