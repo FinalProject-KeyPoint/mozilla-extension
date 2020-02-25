@@ -12,8 +12,7 @@
     "tabs",
     "storage",
     "webRequest",
-    "http://*/*",
-    "https://*/*"
+    "<all_urls>"
   ],
 
   "browser_action": {

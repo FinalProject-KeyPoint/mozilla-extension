@@ -21,8 +21,6 @@ function openSummaryInNewTab()
         return Mercury.parse(pageUrl,{contentType: "html"});
     })
     .then((parsedPage) => {
-        console.log("mercury:", parsedPage);
-        
         pArr = parsedPage.content.replace(/<style[^>]*>.*<\/style>/gm, ' ')
             .replace(/Page [0-9]/gm, ' ')
             .replace(/<p>/igm,' ')
@@ -67,8 +65,6 @@ function openSummaryInSameTab()
         return Mercury.parse(pageUrl,{contentType: "html"});
     })
     .then((parsedPage) => {
-        console.log("mercury:", parsedPage);
-
         pArr = parsedPage.content.replace(/<style[^>]*>.*<\/style>/gm, ' ')
             .replace(/Page [0-9]/gm, ' ')
             .replace(/<p>/igm,' ')
@@ -87,150 +83,152 @@ function openSummaryInSameTab()
             .replace(/([\r\n]+ +)+/gm, ' ')
             .replace(/&nbsp;/gm,' ');
         
-        return fetch(keypointServer, {
+        fetch(keypointServer, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(pArr)
         })
-
-    })    
-    .then(res => res.text())
-    .then((res) => {
-        console.log(res);
-        
-        let {keyPoint, redactedArticle} = JSON.parse(res);
-        summaryArr = keyPoint;
-        redactedArr = redactedArticle;
-        return browser.storage.sync.get()
-    })
-    .then(({summaryLength}) => {
-        return browser.tabs.executeScript(currentTab.id,{
-            code: `
-                var summaryLength = '${summaryLength}';
-                var summaryArr = JSON.parse('${JSON.stringify(summaryArr)}');
-
-                function sentencesToDisplay(summaryLength,arrLength)
-                {
-                    switch(summaryLength)
-                    {
-                        case 's':
-                            return Math.floor(arrLength*25/60);
-                        case 'm':
-                            return Math.floor(arrLength*40/60);
-                        case 'l':
-                        default:
-                            return arrLength;
-
-                    }
-                }
-
-                var summaryDiv = document.createElement("div");
-                summaryDiv.id = 'Summary';
-                summaryDiv.style.backgroundColor = '#fff';
-                summaryDiv.style.position = 'fixed';
-                summaryDiv.style.overflowY = 'scroll';
-                summaryDiv.style.width = '100%';
-                summaryDiv.style.height = '100%';
-                summaryDiv.style.top = '0px';
-                summaryDiv.style.left = '0px';
-                summaryDiv.style.zIndex = '1000';
-                summaryDiv.style.padding = '100px';
-
-                var backBtn = document.createElement("button");
-                backBtn.innerText = 'Back';
-                backBtn.style.all = 'revert';
-                backBtn.onclick = () => summaryDiv.remove();
-
-                var modeSelector = document.createElement("select");
-                modeSelector.id = "select-mode";
-                modeSelector.innerHTML = \`
-                    <option value="o">Original</option>
-                    <option value="r">Redacted</option>
-                    <option value="s">Summarised</option>
-                \`;
-
-                var articleTitle = document.createElement("h1");
-                articleTitle.innerText = \`${article.title}\`;
-                articleTitle.style.all = 'revert';
-
-                var articleAuthor = document.createElement("h4");
-                articleAuthor.innerText = \`${article.author}\`;
-                articleAuthor.style.all = 'revert';
-                
-                var keyPointsList = document.createElement('ul');
-                keyPointsList.id = 'key-points-ul';
-                keyPointsList.style.all = 'revert';
-                function populateKeyPoints()
-                {
-                    keyPointsList.innerHTML =
-                        summaryArr.reduce((acc,p,i) => {
-                            if(i<=sentencesToDisplay(summaryLength,summaryArr.length))
-                            {
-                                return acc + '<li>' + p + '</li>'
-                            }
-                            else
-                            {
-                                return acc;
-                            }
-                        },'')
-
-                }
-
-                var lengthSelector = document.createElement("select");
-                lengthSelector.id = "select-length";
-                lengthSelector.innerHTML = \`
-                    <option value="s">Short</option>
-                    <option value="m">Medium</option>
-                    <option value="l">Long</option>
-                \`;
-                lengthSelector.value = summaryLength;
-
-                var articleContent = document.createElement("p");
-                articleContent.innerText = \`${article.content}\`;
-                articleContent.style.all = 'revert';                
-                modeSelector.onchange = (e) => {
-                    if(e.target.value === 'o')
-                    {
-                        articleContent.innerText = \`${article.content}\`;              
-                    }                    
-                    else if(e.target.value === 's')
-                    {
-                        articleContent.innerText = '';
-                        articleContent.appendChild(lengthSelector);
-                        populateKeyPoints();
-                        articleContent.appendChild(keyPointsList);
-                    }
-                    else if(e.target.value === 'r')
-                    {
-                        articleContent.innerText = \`${redactedArr.join(' ')}\`;
-                    }
-                }
-
-                lengthSelector.onchange = (e) => {
-                    summaryLength = e.target.value;
-                    populateKeyPoints();
-                }
-
-                summaryDiv.appendChild(backBtn);
-                summaryDiv.appendChild(modeSelector);
-                summaryDiv.appendChild(articleTitle);
-                summaryDiv.appendChild(articleAuthor);
-                summaryDiv.appendChild(articleContent);
-
-                document.body.appendChild(summaryDiv);
-
-                document.onkeydown = (e) => {
-                    if(e.key === "Escape")
-                    {
-                        summaryDiv.remove();
-                    }
-                }
-                undefined;
-            `
+        .then(res => res.text())
+        .then((res) => {
+            console.log(res);
+            
+            let {keyPoint, redactedArticle} = JSON.parse(res);
+            summaryArr = keyPoint;
+            redactedArr = redactedArticle;
+            return browser.storage.sync.get()
         })
+        .then(({summaryLength}) => {
+            return browser.tabs.executeScript(currentTab.id,{
+                code: `
+                    var summaryLength = '${summaryLength}';
+                    var summaryArr = JSON.parse('${JSON.stringify(summaryArr)}');
+    
+                    function sentencesToDisplay(summaryLength,arrLength)
+                    {
+                        switch(summaryLength)
+                        {
+                            case 's':
+                                return Math.floor(arrLength*25/60);
+                            case 'm':
+                                return Math.floor(arrLength*40/60);
+                            case 'l':
+                            default:
+                                return arrLength;
+    
+                        }
+                    }
+    
+                    var summaryDiv = document.createElement("div");
+                    summaryDiv.id = 'Summary';
+                    summaryDiv.style.backgroundColor = '#fff';
+                    summaryDiv.style.position = 'fixed';
+                    summaryDiv.style.overflowY = 'scroll';
+                    summaryDiv.style.width = '100%';
+                    summaryDiv.style.height = '100%';
+                    summaryDiv.style.top = '0px';
+                    summaryDiv.style.left = '0px';
+                    summaryDiv.style.zIndex = '1000';
+                    summaryDiv.style.padding = '100px';
+    
+                    var backBtn = document.createElement("button");
+                    backBtn.innerText = 'Back';
+                    backBtn.style.all = 'revert';
+                    backBtn.onclick = () => summaryDiv.remove();
+    
+                    var modeSelector = document.createElement("select");
+                    modeSelector.id = "select-mode";
+                    modeSelector.innerHTML = \`
+                        <option value="o">Original</option>
+                        <option value="r">Redacted</option>
+                        <option value="s">Summarised</option>
+                    \`;
+    
+                    var articleTitle = document.createElement("h1");
+                    articleTitle.innerText = \`${article.title}\`;
+                    articleTitle.style.all = 'revert';
+    
+                    var articleAuthor = document.createElement("h4");
+                    articleAuthor.innerText = \`${article.author}\`;
+                    articleAuthor.style.all = 'revert';
+                    
+                    var keyPointsList = document.createElement('ul');
+                    keyPointsList.id = 'key-points-ul';
+                    keyPointsList.style.all = 'revert';
+                    function populateKeyPoints()
+                    {
+                        keyPointsList.innerHTML =
+                            summaryArr.reduce((acc,p,i) => {
+                                if(i<=sentencesToDisplay(summaryLength,summaryArr.length))
+                                {
+                                    return acc + '<li>' + p + '</li>'
+                                }
+                                else
+                                {
+                                    return acc;
+                                }
+                            },'')
+    
+                    }
+    
+                    var lengthSelector = document.createElement("select");
+                    lengthSelector.id = "select-length";
+                    lengthSelector.innerHTML = \`
+                        <option value="s">Short</option>
+                        <option value="m">Medium</option>
+                        <option value="l">Long</option>
+                    \`;
+                    lengthSelector.value = summaryLength;
+    
+                    var articleContent = document.createElement("p");
+                    articleContent.innerText = \`${article.content}\`;
+                    articleContent.style.all = 'revert';                
+                    modeSelector.onchange = (e) => {
+                        if(e.target.value === 'o')
+                        {
+                            articleContent.innerText = \`${article.content}\`;              
+                        }                    
+                        else if(e.target.value === 's')
+                        {
+                            articleContent.innerText = '';
+                            articleContent.appendChild(lengthSelector);
+                            populateKeyPoints();
+                            articleContent.appendChild(keyPointsList);
+                        }
+                        else if(e.target.value === 'r')
+                        {
+                            articleContent.innerText = \`${redactedArr.join(' ')}\`;
+                        }
+                    }
+    
+                    lengthSelector.onchange = (e) => {
+                        summaryLength = e.target.value;
+                        populateKeyPoints();
+                    }
+    
+                    summaryDiv.appendChild(backBtn);
+                    summaryDiv.appendChild(modeSelector);
+                    summaryDiv.appendChild(articleTitle);
+                    summaryDiv.appendChild(articleAuthor);
+                    summaryDiv.appendChild(articleContent);
+    
+                    document.body.appendChild(summaryDiv);
+    
+                    document.onkeydown = (e) => {
+                        if(e.key === "Escape")
+                        {
+                            summaryDiv.remove();
+                        }
+                    }
+                    undefined;
+                `
+            })
+        })
+
+        
     })
+    
 }
 
 summariseBtn.addEventListener("click", () => {
