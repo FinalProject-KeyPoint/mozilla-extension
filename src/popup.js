@@ -24,10 +24,10 @@ function openSummaryInNewTab()
         pArr = parsedPage.content.replace(/<style[^>]*>.*<\/style>/gm, ' ')
             .replace(/Page [0-9]/gm, ' ')
             .replace(/<p>/igm,' ')
-            .replace(/(<\/?(?:p)[^>]*>)|<[^>]+>/igm, '$1')
+            .replace(/(<\/?(?:p|br)[^>]*>)|<[^>]+>/igm, '$1')
             .replace(/([\r\n]+ +)+/gm, ' ')
             .replace(/&nbsp;/gm,' ')
-            .split(/<\/p>/i)
+            .split(/<\/p>|<br>/i)
             .map(p => p.trim())
             .filter(p => p.length > 0)
 
@@ -68,11 +68,11 @@ function openSummaryInSameTab()
         pArr = parsedPage.content.replace(/<style[^>]*>.*<\/style>/gm, ' ')
             .replace(/Page [0-9]/gm, ' ')
             .replace(/<p>/igm,' ')
-            .replace(/(<\/?(?:p)[^>]*>)|<[^>]+>/igm, '$1')
+            .replace(/(<\/?(?:p|br)[^>]*>)|<[^>]+>/igm, '$1')
             .replace(/([\r\n]+ +)+/gm, ' ')
             .replace(/&nbsp;/gm,' ')
-            .split(/<\/p>/i)
-            .map(p => p.trim())
+            .split(/<\/p>|<br>/igm)
+            .map(p => p ? p.trim() : "")
             .filter(p => p.length > 0)
         
         article = parsedPage;
@@ -92,8 +92,6 @@ function openSummaryInSameTab()
         })
         .then(res => res.text())
         .then((res) => {
-            console.log(res);
-            
             let {keyPoint, redactedArticle} = JSON.parse(res);
             summaryArr = keyPoint;
             redactedArr = redactedArticle;
@@ -103,7 +101,7 @@ function openSummaryInSameTab()
             return browser.tabs.executeScript(currentTab.id,{
                 code: `
                     var summaryLength = '${summaryLength}';
-                    var summaryArr = JSON.parse('${JSON.stringify(summaryArr)}');
+                    var summaryArr = JSON.parse(String.raw \`${JSON.stringify(summaryArr)}\`);
     
                     function sentencesToDisplay(summaryLength,arrLength)
                     {
