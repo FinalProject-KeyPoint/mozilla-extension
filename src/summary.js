@@ -1,12 +1,14 @@
 import React, {useState} from 'react'
 import ReactDOM from 'react-dom'
 
-const keypointServer = 'http://13.250.46.91:3000';
-browser.runtime.onMessage.addListener((message) => {
-    switch(message.type)
+// const keypointServer = 'http://13.250.46.91:3000';
+const keypointServer = 'https://allh8project.japhendywijaya.xyz/articles/redactedArticle';
+
+browser.runtime.onMessage.addListener(({type, article, summaryLength, pArr}) => {
+    switch(type)
     {
         case 'SET_CONTENT':
-            injectApp(message.article,message.summaryLength);
+            injectApp(article,summaryLength,pArr);
             break;
     }
 });
@@ -16,6 +18,7 @@ function Summary(props)
     const [mode, setMode] = useState('o');
     const [loadSum, setLoadSum] = useState(true);
     const [summaryLength, setSummaryLength] = useState(props.summaryLength);
+    const [redactedArr, setRedactedArr] = useState([]);
 
     const loading = [
         'Loading',
@@ -26,7 +29,7 @@ function Summary(props)
     ];
     const [loadingMsg] = useState(loading[Math.floor(Math.random()*loading.length)]);
     const [summaryArr, setSummaryArr] = useState([]);
-    const {article} = props;
+    const {article, pArr} = props;
 
     function sentencesToDisplay(summaryLength,arrLength)
     {
@@ -50,13 +53,13 @@ function Summary(props)
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                "isi_artikel": article.content
-            })
+            body: JSON.stringify(pArr)
         })
         .then(res => res.text())
-        .then((arr) => {
-            setSummaryArr(JSON.parse(arr));
+        .then((res) => {
+            const {keyPoint, redactedArticle} = JSON.parse(res);
+            setSummaryArr(keyPoint);
+            setRedactedArr(redactedArticle);
             // console.log(summaryArr);
             setLoadSum(false);
         })
@@ -67,6 +70,7 @@ function Summary(props)
         <div>
             <select id="select-mode" value={mode} onChange={e=>setMode(e.target.value)}>
                 <option value="o">Original</option>
+                <option value="r">Redacted</option>
                 <option value="s">Summarised</option>
             </select>
             
@@ -76,40 +80,49 @@ function Summary(props)
                 {
                     mode === 'o'
                     ? article.content
-                    : mode === 's'
-                      ? loadSum
+                      : loadSum
                         ? loadingMsg + '...'
-                        : 
-                        <p>
-                            <select id="summary-length" value={summaryLength} onChange={e=>setSummaryLength(e.target.value)}>
-                                <option value="s">Short</option>
-                                <option value="m">Medium</option>
-                                <option value="l">Long</option>
-                            </select>
-                            <ul>
+                          : mode === 's'
+                            ? 
+                            <p>
+                                <select id="summary-length" value={summaryLength} onChange={e=>setSummaryLength(e.target.value)}>
+                                    <option value="s">Short</option>
+                                    <option value="m">Medium</option>
+                                    <option value="l">Long</option>
+                                </select>
+                                <ul>
+                                    {
+                                        summaryArr.map((p,i) => {
+                                            if(i<=sentencesToDisplay(summaryLength,summaryArr.length))
+                                            {
+                                                return <li>{p}</li>;
+                                            }
+                                        })
+                                    }
+                                </ul>
+                            </p>
+                          : mode === 'r'
+                          ? 
+                            <p>
                                 {
-                                    summaryArr.map((p,i) => {
-                                        if(i<=sentencesToDisplay(summaryLength,summaryArr.length))
-                                        {
-                                            return <li>{p}</li>;
-                                        }
+                                    redactedArr.map((p) => {
+                                        return p + ' ';
                                     })
                                 }
-                            </ul>
-                        </p>
-                      : ''
+                            </p>
+                          : ''
                 }
             </div>
         </div>
     );
 }
 
-function injectApp(article,summaryLength)
+function injectApp(article,summaryLength,pArr)
 {
     const summaryDiv = document.getElementById('Summary');
     if(!summaryDiv.innerHTML)
     {
-        ReactDOM.render(<Summary article={article} summaryLength={summaryLength} />, summaryDiv);
+        ReactDOM.render(<Summary article={article} summaryLength={summaryLength} pArr={pArr} />, summaryDiv);
 
     }
 }

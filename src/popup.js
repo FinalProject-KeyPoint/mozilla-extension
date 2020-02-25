@@ -3,7 +3,10 @@ import Mercury from "./mercury";
 const summariseBtn = document.getElementById('summarise-btn');
 let article;
 let summaryArr = [];
-const keypointServer = 'http://13.250.46.91:3000';
+let redactedArr = [];
+let pArr = [];
+// const keypointServer = 'http://13.250.46.91:3000';
+const keypointServer = 'https://allh8project.japhendywijaya.xyz/articles/redactedArticle';
 
 function openSummaryInNewTab()
 {
@@ -20,14 +23,23 @@ function openSummaryInNewTab()
     .then((parsedPage) => {
         console.log("mercury:", parsedPage);
         
-        parsedPage.content = 
-            parsedPage.content.replace(/<style[^>]*>.*<\/style>/gm, ' ')
+        pArr = parsedPage.content.replace(/<style[^>]*>.*<\/style>/gm, ' ')
+            .replace(/Page [0-9]/gm, ' ')
+            .replace(/<p>/igm,' ')
+            .replace(/(<\/?(?:p)[^>]*>)|<[^>]+>/igm, '$1')
+            .replace(/([\r\n]+ +)+/gm, ' ')
+            .replace(/&nbsp;/gm,' ')
+            .split(/<\/p>/i)
+            .map(p => p.trim())
+            .filter(p => p.length > 0)
+
+        article = parsedPage;
+        article.content = article.content.replace(/<style[^>]*>.*<\/style>/gm, ' ')
             .replace(/Page [0-9]/gm, ' ')
             .replace(/<[^>]+>/gm, ' ')
             .replace(/([\r\n]+ +)+/gm, ' ')
             .replace(/&nbsp;/gm,' ');
         
-        article = parsedPage;
         return browser.tabs.create({
             url: '/summary.html'
         })
@@ -37,6 +49,7 @@ function openSummaryInNewTab()
             browser.runtime.sendMessage({
                 type: "SET_CONTENT",
                 article,
+                pArr,
                 summaryLength: userSetSumLength
             })
         }, 500);
@@ -55,30 +68,41 @@ function openSummaryInSameTab()
     })
     .then((parsedPage) => {
         console.log("mercury:", parsedPage);
+
+        pArr = parsedPage.content.replace(/<style[^>]*>.*<\/style>/gm, ' ')
+            .replace(/Page [0-9]/gm, ' ')
+            .replace(/<p>/igm,' ')
+            .replace(/(<\/?(?:p)[^>]*>)|<[^>]+>/igm, '$1')
+            .replace(/([\r\n]+ +)+/gm, ' ')
+            .replace(/&nbsp;/gm,' ')
+            .split(/<\/p>/i)
+            .map(p => p.trim())
+            .filter(p => p.length > 0)
         
-        parsedPage.content = 
-            parsedPage.content.replace(/<style[^>]*>.*<\/style>/gm, ' ')
+        article = parsedPage;
+        article.content = 
+            article.content.replace(/<style[^>]*>.*<\/style>/gm, ' ')
             .replace(/Page [0-9]/gm, ' ')
             .replace(/<[^>]+>/gm, ' ')
             .replace(/([\r\n]+ +)+/gm, ' ')
             .replace(/&nbsp;/gm,' ');
-
-        article = parsedPage;
         
         return fetch(keypointServer, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                "isi_artikel": article.content
-            })
+            body: JSON.stringify(pArr)
         })
 
     })    
     .then(res => res.text())
-    .then((arr) => {
-        summaryArr = JSON.parse(arr);
+    .then((res) => {
+        console.log(res);
+        
+        let {keyPoint, redactedArticle} = JSON.parse(res);
+        summaryArr = keyPoint;
+        redactedArr = redactedArticle;
         return browser.storage.sync.get()
     })
     .then(({summaryLength}) => {
@@ -123,6 +147,7 @@ function openSummaryInSameTab()
                 modeSelector.id = "select-mode";
                 modeSelector.innerHTML = \`
                     <option value="o">Original</option>
+                    <option value="r">Redacted</option>
                     <option value="s">Summarised</option>
                 \`;
 
@@ -169,13 +194,17 @@ function openSummaryInSameTab()
                     if(e.target.value === 'o')
                     {
                         articleContent.innerText = \`${article.content}\`;              
-                    }
-                    else
+                    }                    
+                    else if(e.target.value === 's')
                     {
                         articleContent.innerText = '';
                         articleContent.appendChild(lengthSelector);
                         populateKeyPoints();
                         articleContent.appendChild(keyPointsList);
+                    }
+                    else if(e.target.value === 'r')
+                    {
+                        articleContent.innerText = \`${redactedArr.join(' ')}\`;
                     }
                 }
 
