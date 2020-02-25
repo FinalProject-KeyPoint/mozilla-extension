@@ -59,7 +59,7 @@ function openSummaryInSameTab()
 
         article = parsedPage;
         
-        fetch(keypointServer, {
+        return fetch(keypointServer, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -68,12 +68,12 @@ function openSummaryInSameTab()
                 "isi_artikel": article.content
             })
         })
-        .then(res => res.text())
-        .then((arr) => {
-            summaryArr = JSON.parse(arr);
-        })
-        
-        browser.tabs.executeScript(currentTab.id,{
+
+    })    
+    .then(res => res.text())
+    .then((arr) => {
+        summaryArr = JSON.parse(arr);
+        return browser.tabs.executeScript(currentTab.id,{
             code: `
                 var summaryDiv = document.createElement("div");
                 summaryDiv.id = 'Summary';
@@ -118,7 +118,7 @@ function openSummaryInSameTab()
                     else
                     {
                         articleContent.innerHTML = \`
-                            <ul>
+                            <ul id='key-points-ul'>
                                 ${
                                     summaryArr.reduce((acc,p) => {
                                         return acc + `<li>${p}</li>`
@@ -146,7 +146,6 @@ function openSummaryInSameTab()
                 undefined;
             `
         })
-
     })
 }
 
