@@ -120,19 +120,9 @@ function openSummaryInSameTab()
     
                     var summaryDiv = document.createElement("div");
                     summaryDiv.id = 'Summary';
-                    summaryDiv.style.backgroundColor = '#fff';
-                    summaryDiv.style.position = 'fixed';
-                    summaryDiv.style.overflowY = 'scroll';
-                    summaryDiv.style.width = '100%';
-                    summaryDiv.style.height = '100%';
-                    summaryDiv.style.top = '0px';
-                    summaryDiv.style.left = '0px';
-                    summaryDiv.style.zIndex = '1000';
-                    summaryDiv.style.padding = '100px';
     
                     var backBtn = document.createElement("button");
                     backBtn.innerText = 'Back';
-                    backBtn.style.all = 'revert';
                     backBtn.onclick = () => summaryDiv.remove();
     
                     var modeSelector = document.createElement("select");
@@ -145,15 +135,12 @@ function openSummaryInSameTab()
     
                     var articleTitle = document.createElement("h1");
                     articleTitle.innerText = \`${article.title}\`;
-                    articleTitle.style.all = 'revert';
     
                     var articleAuthor = document.createElement("h4");
                     articleAuthor.innerText = \`${article.author}\`;
-                    articleAuthor.style.all = 'revert';
                     
                     var keyPointsList = document.createElement('ul');
                     keyPointsList.id = 'key-points-ul';
-                    keyPointsList.style.all = 'revert';
                     function populateKeyPoints()
                     {
                         keyPointsList.innerHTML =
@@ -180,8 +167,7 @@ function openSummaryInSameTab()
                     lengthSelector.value = summaryLength;
     
                     var articleContent = document.createElement("p");
-                    articleContent.innerText = \`${article.content}\`;
-                    articleContent.style.all = 'revert';                
+                    articleContent.innerText = \`${article.content}\`;  
                     modeSelector.onchange = (e) => {
                         if(e.target.value === 'o')
                         {
@@ -222,7 +208,14 @@ function openSummaryInSameTab()
                     undefined;
                 `
             })
+
         })
+        .then(() => {
+            return browser.tabs.insertCSS(currentTab.id,{
+                file: "/summary.css"
+            })
+        })
+        .then(null)
 
         
     })

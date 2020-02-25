@@ -1,15 +1,33 @@
+#Summary {
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    background-color: cornflowerblue;
+    position : fixed;
+    overflow-y : scroll;
+    top : 0px;
+    left : 0px;
+    z-index : 1000;
+    padding : 50px;
+    padding-right: 100px;
+    height: 100%;
+}
+
 #Summary h1 {
-    all: 'revert';
+    font-size: x-large !important;
+    font-weight: bold !important;
 }
 
 #Summary h4 {
-    all: 'revert';
+    font-weight: bold;
 }
 
 #Summary p {
-    all: 'revert';
+    all: 'unset' !important;
 }
 
 #Summary ul {
-    all: 'revert';
+    all: 'unset' !important;
+}
+
+#Summary button {
+    all: 'unset' !important;
 }
