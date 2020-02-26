@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import Axios from 'axios';
 import Content from './injectedReact/Content';
+import 'antd/dist/antd.css'
 // import './styles/tufte-css/latex.css';
 // import './styles/tufte-css/tufte.css';
 
@@ -24,7 +25,7 @@ browser.runtime.onMessage.addListener(({ type, article, summaryLength, pArr }) =
 function Summary(props) {
     const [mode, setMode] = useState('o');
     const [loadSum, setLoadSum] = useState(true);
-    const [summaryLength, setSummaryLength] = useState(props.summaryLength);
+    const [summaryLength, setSummaryLength] = useState(0);
     const [redactedArr, setRedactedArr] = useState([]);
     const [donePosting, setDonePosting] = useState(false);
     const [toggleFontStyle, setToggleFontStyle] = useState('et-book');
@@ -63,13 +64,12 @@ function Summary(props) {
 
     function sentencesToDisplay(summaryLength, arrLength) {
         switch (summaryLength) {
-            case 's':
+            case 0:
                 return Math.floor(arrLength * 25 / 60);
-            case 'm':
+            case 1:
                 return Math.floor(arrLength * 40 / 60);
             default:
                 return arrLength;
-
         }
     }
 
@@ -95,11 +95,11 @@ function Summary(props) {
     return (
         <article>
             <div>
-                <select id="select-mode" value={mode} onChange={e => setMode(e.target.value)}>
+                {/* <select id="select-mode" value={mode} onChange={e => setMode(e.target.value)}>
                     <option value="o">Original</option>
                     <option value="r">Redacted</option>
                     <option value="s">Summarised</option>
-                </select>
+                </select> */}
 
                 <h1 className="tufte-css" id="title">{article.title}</h1>
                 <p className="subtitle" id="author">{article.author}</p>
@@ -109,6 +109,7 @@ function Summary(props) {
                     const [loadSum, setLoadSum] = useState(true);
                     const [summaryLength, setSummaryLength] = useState(props.summaryLength);
                     const [redactedArr, setRedactedArr] = useState([]); */}
+                    {/* const [summaryArr, setSummaryArr] = useState([]); */}
 
                     <Content
                         mode={mode} setMode={setMode}
@@ -116,6 +117,8 @@ function Summary(props) {
                         summaryLength={summaryLength} setSummaryLength={setSummaryLength}
                         redactedArr={redactedArr} setRedactedArr={setRedactedArr}
                         article={article} loadingMsg={loadingMsg}
+                        summaryArr={summaryArr} setSummaryArr={setSummaryArr}
+                        sentencesToDisplay={sentencesToDisplay}
                     />
                     {/* {
                         mode === 'o'
