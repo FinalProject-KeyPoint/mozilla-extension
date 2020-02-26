@@ -1,0 +1,14 @@
+.authDiv {
+    background-color: cyan;
+    margin-left: -20px;
+}
+small { 
+    margin-top: 5px;
+    cursor: 'pointer';
+    color: 'cornflowerblue';
+    font-size: 13px;
+}
+
+small:hover {
+    text-decoration: underline cyan;
+}

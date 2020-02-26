@@ -9,7 +9,13 @@ const cnnindonesiaExtractor = {
         selectors: ['.detail_text > b']
     },
     content: {
-        selectors: ['.detail_text']
+        selectors: ['.detail_text'],
+        clean: [
+            '.pic_artikel_sisip',
+            '.pic',
+            '.linksisip',
+            '.embed'
+        ]
     }
 }
 
@@ -57,7 +63,7 @@ const detikExtractor = {
         selectors: []
     },
     author: {
-        selectors: ['.author','.detail__author']
+        selectors: ['.author', '.detail__author']
     },
     content: {
         selectors: [
@@ -107,7 +113,7 @@ const tempoExtractor = {
             'div[itemprop="articleBody"]'
         ],
         clean: [
-            
+
         ]
     },
 }
