@@ -5,6 +5,7 @@ import ReactDOM from 'react-dom';
 // import Login from './screens/Login';
 // import Register from './screens/Register';
 import Auth from './injectedReact/Auth';
+import KeyPoint from './injectedReact/KeyPoint';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const summariseBtn = document.getElementById('summarise-btn');
@@ -316,24 +317,25 @@ const Popup = () => {
       })
   }
 
-  // console.log('isLogin', isLogin);
+  console.log('isLogin', isLogin);
   if (isLogin) {
-    return (
-      <div>
-        <button type="button" onClick={openSummarize}>
-          Summarize this article!
-        </button>
-        <br />
-        <button type="button" onClick={userLogOut}>
-          Log Out
-        </button>
-      </div>
-    );
+    return < KeyPoint openSummarize={openSummarize} userLogOut={userLogOut} />
+    // (
+    //   <div>
+    //     <button type="button" onClick={openSummarize}>
+    //       Summarize this article!
+    //     </button>
+    //     <br />
+    //     <button type="button" onClick={userLogOut}>
+    //       Log Out
+    //     </button>
+    //   </div>
+    // );
   }
 
   // if (state === 'login') {
   return (
-    <div className="container d-flex flex-column align-items-end w-100" style={{ height: 290 }}>
+    <div className="container d-flex flex-row align-items-center justify-content-center" style={{ padding: 15, display: 'flex', justifyContent: 'center', alignItems: 'center', marginRight: 25 }}>
       {/* <Login
           className="mt-5"
           openRegister={() => setState('register')}
