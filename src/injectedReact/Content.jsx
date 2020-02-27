@@ -42,11 +42,13 @@ export default function Content(props) {
                         </div>
                         <ul>
                             {
-                                props.summaryArr.map((p, i) => {
-                                    if (i <= props.sentencesToDisplay(props.summaryLength, props.summaryArr.length)) {
-                                        return <li>{p}</li>;
-                                    }
-                                })
+                                props.summaryArr.length > 0
+                                    ? props.summaryArr.map((p, i) => {
+                                        if (i <= props.sentencesToDisplay(props.summaryLength, props.summaryArr.length)) {
+                                            return <li>{p}</li>;
+                                        }
+                                    })
+                                    : "Loading..."
                             }
                         </ul>
                     </p>

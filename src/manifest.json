@@ -3,7 +3,7 @@
   "name": "KeyPoint",
   "version": "0.1",
   "description": "Summarise articles from your favorite sites and only read what you need",
-  "homepage_url": "https://github.com/",
+  "homepage_url": "https://github.com/FinalProject-KeyPoint",
   "permissions": [
     "activeTab",
     "tabs",
@@ -32,9 +32,8 @@
     }
   },
   "icons": {
-    "19": "../ico/icon19.png",
-    "38": "../ico/icon38.png",
-    "48": "../ico/favicon.ico",
-    "96": "../ico/favicon-96x96.png"
+    "19": "./assets/ico/icon19.png",
+    "38": "./assets/ico/icon38.png",
+    "96": "./assets/ico/favicon-96x96.png"
   }
 }
