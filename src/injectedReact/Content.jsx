@@ -23,7 +23,7 @@ export default function Content(props) {
                             : <p>
                                 {
                                     props.redactedArr.map((p) => {
-                                        return p + ' ';
+                                        return <p>{p + ' \n\n'}</p>
                                     })
                                 }
                             </p>
